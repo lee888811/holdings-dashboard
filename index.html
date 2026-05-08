@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>8개 법인 통합 재무 대시보드 — Phase 1</title>
+<title>8개 법인 통합 재무 대시보드</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600&family=Pretendard:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -39,7 +39,7 @@
     backdrop-filter: blur(8px); background: rgba(255,255,255,0.92);
   }
   .header-inner {
-    max-width: 1280px; margin: 0 auto;
+    max-width: 1320px; margin: 0 auto;
     display: flex; justify-content: space-between; align-items: flex-end;
     gap: 24px; flex-wrap: wrap;
   }
@@ -66,37 +66,48 @@
   .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
   .btn-primary:hover { background: #6f2e2e; color: #fff; border-color: #6f2e2e; }
 
-  .main { max-width: 1280px; margin: 0 auto; padding: 28px 32px 80px; }
+  .tabs {
+    max-width: 1320px; margin: 0 auto; padding: 16px 32px 0;
+    display: flex; gap: 4px; border-bottom: 1px solid var(--line);
+  }
+  .tab {
+    padding: 10px 18px; background: transparent; border: none;
+    border-bottom: 2px solid transparent; cursor: pointer;
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    color: var(--ink-muted); transition: all 0.15s;
+  }
+  .tab:hover { color: var(--ink-soft); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .main { max-width: 1320px; margin: 0 auto; padding: 24px 32px 80px; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 
   .summary {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1px; background: var(--line); border: 1px solid var(--line);
-    border-radius: 8px; overflow: hidden; margin-bottom: 28px; box-shadow: var(--shadow);
+    border-radius: 8px; overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow);
   }
-  .summary-stat { background: var(--bg-card); padding: 18px 22px; }
+  .summary-stat { background: var(--bg-card); padding: 16px 20px; }
   .summary-label {
     font-size: 11px; color: var(--ink-muted);
     text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;
   }
   .summary-value {
-    font-family: 'Noto Serif KR', serif; font-size: 24px; font-weight: 600; letter-spacing: -0.02em;
+    font-family: 'Noto Serif KR', serif; font-size: 22px; font-weight: 600; letter-spacing: -0.02em;
   }
-  .summary-value .unit { font-size: 13px; color: var(--ink-muted); margin-left: 4px; font-weight: 400; }
+  .summary-value .unit { font-size: 12px; color: var(--ink-muted); margin-left: 4px; font-weight: 400; }
   .summary-meta { font-size: 11px; color: var(--ink-muted); margin-top: 4px; }
 
   .corps-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 16px; margin-bottom: 28px;
   }
   .corp-card {
     background: var(--bg-card); border: 1px solid var(--line);
     border-radius: 10px; padding: 18px 20px; box-shadow: var(--shadow);
-    transition: all 0.15s;
   }
-  .corp-card.alert {
-    border-color: rgba(168, 50, 50, 0.3);
-    background: linear-gradient(135deg, #fff 0%, #fdf6f5 100%);
-  }
+  .corp-card.alert { border-color: rgba(168, 50, 50, 0.3); background: linear-gradient(135deg, #fff 0%, #fdf6f5 100%); }
   .corp-card-header {
     display: flex; justify-content: space-between; align-items: flex-start;
     margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line-soft);
@@ -104,10 +115,9 @@
   .corp-name { font-family: 'Noto Serif KR', serif; font-size: 16px; font-weight: 600; }
   .corp-badge { font-size: 10px; padding: 3px 7px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em; }
   .badge-ok { background: rgba(74, 103, 65, 0.1); color: var(--green); }
-  .badge-warning { background: rgba(184, 134, 42, 0.1); color: var(--amber); }
   .badge-alert { background: rgba(168, 50, 50, 0.1); color: var(--red); }
   .badge-empty { background: var(--bg-section); color: var(--ink-muted); }
-
+  .badge-auto { background: rgba(44, 85, 119, 0.1); color: var(--blue); }
   .corp-total {
     font-family: 'Noto Serif KR', serif; font-size: 26px; font-weight: 600;
     margin-bottom: 4px; letter-spacing: -0.01em;
@@ -116,56 +126,61 @@
   .corp-diff.up { color: var(--green); }
   .corp-diff.down { color: var(--red); }
   .corp-diff.flat { color: var(--ink-muted); }
-
   .corp-breakdown {
     display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px;
   }
   .breakdown-item { background: var(--bg-section); padding: 8px 10px; border-radius: 4px; }
   .breakdown-label { font-size: 10px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
   .breakdown-value { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
-
-  .input-row {
-    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px;
-  }
+  .input-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px; }
   .input-row input {
     width: 100%; padding: 7px 10px; border: 1px solid var(--line);
     border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 13px;
     background: var(--bg-section); outline: none;
   }
   .input-row input:focus { border-color: var(--accent); background: #fff; }
-  .input-row input::placeholder { color: var(--ink-muted); }
-
   .save-btn {
     width: 100%; padding: 8px; background: var(--ink); color: #fff;
     border: none; border-radius: 4px; font-family: inherit;
-    font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s;
+    font-size: 12px; font-weight: 500; cursor: pointer;
   }
   .save-btn:hover { background: #000; }
-  .save-btn:disabled { background: var(--line); color: var(--ink-muted); cursor: not-allowed; }
-
+  .save-btn.auto-mode { background: var(--blue); }
   .last-updated { font-size: 10px; color: var(--ink-muted); margin-top: 8px; text-align: right; }
 
-  .alerts-panel {
+  .alerts-panel, .panel {
     background: var(--bg-card); border: 1px solid var(--line);
-    border-radius: 10px; padding: 18px 22px; margin-bottom: 28px; box-shadow: var(--shadow);
+    border-radius: 10px; padding: 18px 22px; margin-bottom: 24px; box-shadow: var(--shadow);
   }
-  .alerts-title {
+  .panel-title {
     font-family: 'Noto Serif KR', serif; font-size: 14px; font-weight: 600;
     margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
   }
-  .alerts-list { display: flex; flex-direction: column; gap: 8px; }
   .alert-item {
     padding: 10px 12px; background: rgba(168, 50, 50, 0.04);
     border-left: 3px solid var(--red); border-radius: 4px; font-size: 12.5px;
+    margin-bottom: 8px;
   }
   .alert-empty { color: var(--ink-muted); font-size: 12.5px; padding: 8px; }
 
   .chart-section {
     background: var(--bg-card); border: 1px solid var(--line);
-    border-radius: 10px; padding: 22px 24px; margin-bottom: 28px; box-shadow: var(--shadow);
+    border-radius: 10px; padding: 22px 24px; margin-bottom: 24px; box-shadow: var(--shadow);
   }
   .chart-title { font-family: 'Noto Serif KR', serif; font-size: 16px; font-weight: 600; margin-bottom: 16px; }
-  #chart { width: 100%; height: 280px; }
+  .chart-container { position: relative; width: 100%; height: 280px; }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th, .data-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line-soft); }
+  .data-table th { background: var(--bg-section); font-weight: 500; font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .data-table td.num { text-align: right; font-family: 'JetBrains Mono', monospace; }
+  .data-table tr:hover { background: var(--bg-section); }
+  .data-table .total-row { font-weight: 600; background: var(--bg-section); }
+  .data-table .total-row td { border-top: 2px solid var(--line); }
+
+  .num-pos { color: var(--green); }
+  .num-neg { color: var(--red); }
+  .num-warn { color: var(--amber); }
 
   .toast {
     position: fixed; bottom: 30px; left: 50%;
@@ -202,6 +217,7 @@
   @media (max-width: 768px) {
     .header { padding: 18px 20px; }
     .main { padding: 20px; }
+    .tabs { padding: 12px 20px 0; overflow-x: auto; }
     .corp-card { padding: 16px; }
   }
 </style>
@@ -222,7 +238,7 @@
   <div class="header-inner">
     <div>
       <div class="header-title">8개 법인 통합 재무 대시보드</div>
-      <div class="header-subtitle">Phase 1 — 일별 잔고 모니터링</div>
+      <div class="header-subtitle">Phase 2 — 자금 + 모니터링 + 손익 통합</div>
     </div>
     <div class="header-controls">
       <div class="date-picker">
@@ -235,23 +251,102 @@
   </div>
 </header>
 
+<div class="tabs" style="display:none" id="tabs">
+  <button class="tab active" onclick="switchTab('cash')">자금</button>
+  <button class="tab" onclick="switchTab('monitor')">모니터링</button>
+  <button class="tab" onclick="switchTab('pnl')">손익</button>
+  <button class="tab" onclick="switchTab('alerts')">알림</button>
+</div>
+
 <main class="main" style="display:none" id="mainContent">
 
-  <div class="summary" id="summary"></div>
+  <div class="tab-content active" id="tab-cash">
+    <div class="summary" id="summary"></div>
 
-  <div class="alerts-panel">
-    <div class="alerts-title">
-      <span style="display:inline-block;width:8px;height:8px;background:var(--red);border-radius:50%"></span>
-      이상 신호 알림
+    <div class="alerts-panel">
+      <div class="panel-title">
+        <span style="display:inline-block;width:8px;height:8px;background:var(--red);border-radius:50%"></span>
+        자금 이상 신호
+      </div>
+      <div id="alertsList"></div>
     </div>
-    <div class="alerts-list" id="alertsList"></div>
+
+    <div class="corps-grid" id="corpsGrid"></div>
+
+    <div class="chart-section">
+      <div class="chart-title">최근 30일 합계 잔고 추이</div>
+      <div class="chart-container"><canvas id="chartCash"></canvas></div>
+    </div>
   </div>
 
-  <div class="corps-grid" id="corpsGrid"></div>
+  <div class="tab-content" id="tab-monitor">
+    <div class="panel">
+      <div class="panel-title">8개 법인 모니터링 지표 (오늘)</div>
+      <div style="overflow-x:auto;">
+        <table class="data-table" id="monitorTable">
+          <thead>
+            <tr>
+              <th>법인</th>
+              <th class="num">가지급금</th>
+              <th class="num">전일대비</th>
+              <th class="num">외상매출금</th>
+              <th class="num">미수금</th>
+              <th class="num">미지급금</th>
+              <th class="num">단기차입</th>
+              <th class="num">장기차입</th>
+              <th class="num">차입합계</th>
+            </tr>
+          </thead>
+          <tbody id="monitorBody"></tbody>
+        </table>
+      </div>
+    </div>
 
-  <div class="chart-section">
-    <div class="chart-title">최근 30일 합계 잔고 추이</div>
-    <canvas id="chart"></canvas>
+    <div class="chart-section">
+      <div class="chart-title">법인별 가지급금 추이 (최근 30일)</div>
+      <div class="chart-container"><canvas id="chartGajigeup"></canvas></div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">8개 법인 합계 — 차입금 vs 미수금 vs 미지급금</div>
+      <div class="chart-container"><canvas id="chartLiability"></canvas></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-pnl">
+    <div class="summary" id="pnlSummary"></div>
+
+    <div class="panel">
+      <div class="panel-title">8개 법인 누적 손익 (YTD)</div>
+      <div style="overflow-x:auto;">
+        <table class="data-table" id="pnlTable">
+          <thead>
+            <tr>
+              <th>법인</th>
+              <th class="num">매출</th>
+              <th class="num">매출원가</th>
+              <th class="num">판관비</th>
+              <th class="num">영업이익</th>
+              <th class="num">영업이익률</th>
+              <th class="num">연간예상이익</th>
+            </tr>
+          </thead>
+          <tbody id="pnlBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">법인별 영업이익 추이 (최근 30일)</div>
+      <div class="chart-container"><canvas id="chartPnl"></canvas></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-alerts">
+    <div class="panel">
+      <div class="panel-title">전체 알림 (최근 30일)</div>
+      <div id="allAlertsList"></div>
+    </div>
   </div>
 
 </main>
@@ -264,21 +359,21 @@
 
 <script>
 const CORPORATIONS = [
-  { id: 'ttl_holdings', name: '티티엘홀딩스' },
-  { id: 'nonhyeon_med', name: '논현메드' },
-  { id: 'cheongdam_med', name: '청담메디칼' },
-  { id: 'idad', name: '아이디애드' },
-  { id: 'gmnet', name: '지엠넷' },
-  { id: 'realconnector', name: '리얼커넥터' },
-  { id: 'a2g', name: '에이투지' },
-  { id: 'botegian', name: '보테지앙' }
+  { id: 'ttl_holdings', name: '티티엘홀딩스', color: '#8b3a3a' },
+  { id: 'nonhyeon_med', name: '논현메드', color: '#2c5577' },
+  { id: 'cheongdam_med', name: '청담메디칼', color: '#4a6741' },
+  { id: 'idad', name: '아이디애드', color: '#b8862a' },
+  { id: 'gmnet', name: '지엠넷', color: '#7c3a8b' },
+  { id: 'realconnector', name: '리얼커넥터', color: '#3a8b7c' },
+  { id: 'a2g', name: '에이투지', color: '#8b573a' },
+  { id: 'botegian', name: '보테지앙', color: '#3a528b' }
 ];
 
 const ALERT_THRESHOLD_PCT = 30;
 const ALERT_LOW_BALANCE = 1000000;
+const GAJIGEUP_ALERT = 1000000;
 const ACCESS_PASSWORD = "aazz9876";
 
-// Firebase 설정 — 본인 프로젝트로 교체
 const firebaseConfig = {
   apiKey: "AIzaSyCTcA__p6RZSSysnAAaJgHIaFiaeRJdJs8",
   authDomain: "holdings-finance.firebaseapp.com",
@@ -301,7 +396,8 @@ try {
 
 let currentDate = '';
 let dailyData = {};
-let chart = null;
+let allHistoryData = {};
+let charts = { cash: null, gajigeup: null, liability: null, pnl: null };
 
 function checkPassword() {
   const input = document.getElementById('passwordInput').value;
@@ -320,6 +416,7 @@ if (sessionStorage.getItem('authed') === '1') setTimeout(showApp, 0);
 function showApp() {
   document.getElementById('loginOverlay').style.display = 'none';
   document.getElementById('mainHeader').style.display = '';
+  document.getElementById('tabs').style.display = '';
   document.getElementById('mainContent').style.display = '';
   init();
 }
@@ -332,94 +429,53 @@ function init() {
     loadData();
   });
   renderCorpCards();
-  loadData();
+  loadAllData();
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+
+  if (name === 'monitor') renderMonitorTab();
+  if (name === 'pnl') renderPnlTab();
+  if (name === 'alerts') renderAlertsTab();
 }
 
 function todayStr() {
   const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
 function getPreviousDate(dateStr) {
   const d = new Date(dateStr);
   d.setDate(d.getDate() - 1);
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
-async function loadData() {
+async function loadAllData() {
   if (!firebaseReady) {
-    const local = localStorage.getItem(`balance_${currentDate}`);
-    dailyData = local ? JSON.parse(local) : {};
-    refreshUI();
+    showToast('Firebase 미설정', true);
     return;
   }
   try {
-    const snapshot = await db.ref(`daily_balance`).once('value');
-    const allData = snapshot.val() || {};
-    dailyData = {};
-    CORPORATIONS.forEach(c => {
-      dailyData[c.id] = (allData[c.id] && allData[c.id][currentDate]) || null;
-    });
-    refreshUI();
-    loadChart();
+    const snapshot = await db.ref('daily_balance').once('value');
+    allHistoryData = snapshot.val() || {};
+    loadData();
+    renderCashChart();
   } catch (e) {
-    showToast('Firebase 연결 실패', true);
+    console.error(e);
+    showToast('데이터 로드 실패', true);
   }
 }
 
-async function loadChart() {
-  if (!firebaseReady) return;
-  try {
-    const snapshot = await db.ref(`daily_balance`).once('value');
-    const allData = snapshot.val() || {};
-    const dates = []; const totals = [];
-    const today = new Date();
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const dStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-      let total = 0; let hasData = false;
-      CORPORATIONS.forEach(c => {
-        if (allData[c.id] && allData[c.id][dStr]) {
-          total += allData[c.id][dStr].total || 0;
-          hasData = true;
-        }
-      });
-      dates.push(dStr.slice(5));
-      totals.push(hasData ? total : null);
-    }
-    renderChart(dates, totals);
-  } catch (e) {}
-}
-
-function renderChart(labels, data) {
-  const ctx = document.getElementById('chart');
-  if (chart) chart.destroy();
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: '8개 법인 합계',
-        data: data,
-        borderColor: '#8b3a3a',
-        backgroundColor: 'rgba(139, 58, 58, 0.08)',
-        borderWidth: 2, tension: 0.3, fill: true,
-        pointRadius: 3, pointHoverRadius: 5
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => '₩ ' + (ctx.parsed.y || 0).toLocaleString() } }
-      },
-      scales: {
-        y: { ticks: { callback: v => (v/1000000).toFixed(0) + 'M' }, grid: { color: '#f0ebe0' } },
-        x: { ticks: { maxTicksLimit: 10 }, grid: { display: false } }
-      }
-    }
+function loadData() {
+  dailyData = {};
+  CORPORATIONS.forEach(c => {
+    dailyData[c.id] = (allHistoryData[c.id] && allHistoryData[c.id][currentDate]) || null;
   });
+  refreshUI();
 }
 
 function renderCorpCards() {
@@ -451,14 +507,14 @@ function renderCorpCards() {
         <input type="text" id="in-cma-${c.id}" placeholder="CMA" inputmode="numeric">
         <input type="text" id="in-deposit-${c.id}" placeholder="정기예금" inputmode="numeric">
       </div>
-      <button class="save-btn" onclick="saveBalance('${c.id}')">저장</button>
+      <button class="save-btn" id="save-${c.id}" onclick="saveBalance('${c.id}')">저장</button>
       <div class="last-updated" id="updated-${c.id}"></div>
     </div>
   `).join('');
 
   CORPORATIONS.forEach(c => {
     ['checking', 'cma', 'deposit'].forEach(field => {
-      const input = document.getElementById(`in-${field}-${c.id}`);
+      const input = document.getElementById('in-' + field + '-' + c.id);
       input.addEventListener('input', e => {
         const num = e.target.value.replace(/[^0-9]/g, '');
         e.target.value = num ? Number(num).toLocaleString() : '';
@@ -475,13 +531,15 @@ function refreshUI() {
   let alerts = [];
   let enteredCount = 0;
   let alertCount = 0;
+  let autoCount = 0;
 
   CORPORATIONS.forEach(c => {
     const data = dailyData[c.id];
-    const card = document.getElementById(`card-${c.id}`);
-    const badge = document.getElementById(`badge-${c.id}`);
-    const totalEl = document.getElementById(`total-${c.id}`);
-    const diffEl = document.getElementById(`diff-${c.id}`);
+    const card = document.getElementById('card-' + c.id);
+    const badge = document.getElementById('badge-' + c.id);
+    const totalEl = document.getElementById('total-' + c.id);
+    const diffEl = document.getElementById('diff-' + c.id);
+    const saveBtn = document.getElementById('save-' + c.id);
 
     if (!data) {
       badge.className = 'corp-badge badge-empty';
@@ -490,24 +548,28 @@ function refreshUI() {
       diffEl.className = 'corp-diff flat mono';
       diffEl.textContent = '전일 대비 정보 없음';
       ['checking', 'cma', 'deposit'].forEach(f => {
-        document.getElementById(`show-${f}-${c.id}`).textContent = '—';
-        document.getElementById(`in-${f}-${c.id}`).value = '';
+        document.getElementById('show-' + f + '-' + c.id).textContent = '—';
+        document.getElementById('in-' + f + '-' + c.id).value = '';
       });
-      document.getElementById(`updated-${c.id}`).textContent = '';
+      document.getElementById('updated-' + c.id).textContent = '';
       card.classList.remove('alert');
+      saveBtn.classList.remove('auto-mode');
+      saveBtn.textContent = '저장';
       return;
     }
 
     enteredCount++;
     totalSum += data.total || 0;
+    const isAuto = data.entered_by === 'auto_sync';
+    if (isAuto) autoCount++;
 
     totalEl.textContent = '₩ ' + (data.total || 0).toLocaleString();
-    document.getElementById(`show-checking-${c.id}`).textContent = (data.checking || 0).toLocaleString();
-    document.getElementById(`show-cma-${c.id}`).textContent = (data.cma || 0).toLocaleString();
-    document.getElementById(`show-deposit-${c.id}`).textContent = (data.deposit || 0).toLocaleString();
-    document.getElementById(`in-checking-${c.id}`).value = (data.checking || 0).toLocaleString();
-    document.getElementById(`in-cma-${c.id}`).value = (data.cma || 0).toLocaleString();
-    document.getElementById(`in-deposit-${c.id}`).value = (data.deposit || 0).toLocaleString();
+    document.getElementById('show-checking-' + c.id).textContent = (data.checking || 0).toLocaleString();
+    document.getElementById('show-cma-' + c.id).textContent = (data.cma || 0).toLocaleString();
+    document.getElementById('show-deposit-' + c.id).textContent = (data.deposit || 0).toLocaleString();
+    document.getElementById('in-checking-' + c.id).value = (data.checking || 0).toLocaleString();
+    document.getElementById('in-cma-' + c.id).value = (data.cma || 0).toLocaleString();
+    document.getElementById('in-deposit-' + c.id).value = (data.deposit || 0).toLocaleString();
 
     const diffPct = data.diff_pct;
     if (diffPct === undefined || diffPct === null) {
@@ -515,10 +577,10 @@ function refreshUI() {
       diffEl.textContent = '전일 대비 정보 없음';
     } else if (diffPct > 0.1) {
       diffEl.className = 'corp-diff up mono';
-      diffEl.textContent = `▲ +${diffPct.toFixed(1)}% (전일 대비)`;
+      diffEl.textContent = '▲ +' + diffPct.toFixed(1) + '% (전일 대비)';
     } else if (diffPct < -0.1) {
       diffEl.className = 'corp-diff down mono';
-      diffEl.textContent = `▼ ${diffPct.toFixed(1)}% (전일 대비)`;
+      diffEl.textContent = '▼ ' + diffPct.toFixed(1) + '% (전일 대비)';
     } else {
       diffEl.className = 'corp-diff flat mono';
       diffEl.textContent = '— 변동 없음';
@@ -526,11 +588,15 @@ function refreshUI() {
 
     let isAlert = false;
     if (Math.abs(diffPct || 0) >= ALERT_THRESHOLD_PCT) {
-      alerts.push(`${c.name}: 잔고 ${diffPct > 0 ? '급증' : '급감'} ${diffPct.toFixed(1)}%`);
+      alerts.push(c.name + ': 잔고 ' + (diffPct > 0 ? '급증' : '급감') + ' ' + diffPct.toFixed(1) + '%');
       isAlert = true;
     }
-    if (data.total < ALERT_LOW_BALANCE) {
-      alerts.push(`${c.name}: 잔고 부족 — ₩${data.total.toLocaleString()}`);
+    if ((data.total || 0) < ALERT_LOW_BALANCE && (data.total || 0) > 0) {
+      alerts.push(c.name + ': 잔고 부족 — ₩' + data.total.toLocaleString());
+      isAlert = true;
+    }
+    if (data.gajigeup_diff && data.gajigeup_diff > GAJIGEUP_ALERT) {
+      alerts.push(c.name + ': 가지급금 증가 +₩' + data.gajigeup_diff.toLocaleString());
       isAlert = true;
     }
 
@@ -539,16 +605,29 @@ function refreshUI() {
       badge.textContent = '경고';
       card.classList.add('alert');
       alertCount++;
+    } else if (isAuto) {
+      badge.className = 'corp-badge badge-auto';
+      badge.textContent = '자동';
+      card.classList.remove('alert');
     } else {
       badge.className = 'corp-badge badge-ok';
       badge.textContent = '정상';
       card.classList.remove('alert');
     }
 
+    if (isAuto) {
+      saveBtn.classList.add('auto-mode');
+      saveBtn.textContent = '수동 덮어쓰기';
+    } else {
+      saveBtn.classList.remove('auto-mode');
+      saveBtn.textContent = '저장';
+    }
+
     if (data.timestamp) {
       const t = new Date(data.timestamp);
-      document.getElementById(`updated-${c.id}`).textContent =
-        `최근 입력: ${t.getMonth()+1}/${t.getDate()} ${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}`;
+      const src = isAuto ? '자동' : '수동';
+      document.getElementById('updated-' + c.id).textContent =
+        src + ' · ' + (t.getMonth()+1) + '/' + t.getDate() + ' ' + t.getHours() + ':' + String(t.getMinutes()).padStart(2,'0');
     }
   });
 
@@ -556,7 +635,7 @@ function refreshUI() {
     <div class="summary-stat">
       <div class="summary-label">합계 잔고</div>
       <div class="summary-value">₩ <span class="mono">${totalSum.toLocaleString()}</span></div>
-      <div class="summary-meta">${enteredCount} / ${CORPORATIONS.length}개 법인 입력됨</div>
+      <div class="summary-meta">${enteredCount} / ${CORPORATIONS.length}개 법인</div>
     </div>
     <div class="summary-stat">
       <div class="summary-label">조회일</div>
@@ -564,145 +643,452 @@ function refreshUI() {
       <div class="summary-meta">${currentDate}</div>
     </div>
     <div class="summary-stat">
+      <div class="summary-label">자동 동기화</div>
+      <div class="summary-value mono" style="color:${autoCount > 0 ? 'var(--blue)' : 'var(--ink-muted)'}">${autoCount}<span class="unit">/ ${CORPORATIONS.length}</span></div>
+      <div class="summary-meta">${autoCount === CORPORATIONS.length ? '완전 자동화' : autoCount === 0 ? '수동 입력 모드' : '부분 자동화'}</div>
+    </div>
+    <div class="summary-stat">
       <div class="summary-label">이상 신호</div>
       <div class="summary-value mono" style="color:${alertCount > 0 ? 'var(--red)' : 'var(--green)'}">${alertCount}<span class="unit">건</span></div>
       <div class="summary-meta">${alertCount > 0 ? '확인 필요' : '모두 정상'}</div>
-    </div>
-    <div class="summary-stat">
-      <div class="summary-label">입력 완료율</div>
-      <div class="summary-value mono">${Math.round(enteredCount/CORPORATIONS.length*100)}<span class="unit">%</span></div>
-      <div class="summary-meta">${enteredCount === CORPORATIONS.length ? '오늘 데이터 완성' : `${CORPORATIONS.length - enteredCount}개 법인 남음`}</div>
     </div>
   `;
 
   const alertsList = document.getElementById('alertsList');
   if (alerts.length === 0) {
-    alertsList.innerHTML = '<div class="alert-empty">현재 이상 신호 없음. 모든 법인 정상 범위.</div>';
+    alertsList.innerHTML = '<div class="alert-empty">현재 자금 이상 신호 없음.</div>';
   } else {
-    alertsList.innerHTML = alerts.map(a => `<div class="alert-item">${a}</div>`).join('');
+    alertsList.innerHTML = alerts.map(a => '<div class="alert-item">' + a + '</div>').join('');
   }
 }
 
 async function saveBalance(corpId) {
-  const checking = parseInt(document.getElementById(`in-checking-${corpId}`).value.replace(/[^0-9]/g, '') || '0');
-  const cma = parseInt(document.getElementById(`in-cma-${corpId}`).value.replace(/[^0-9]/g, '') || '0');
-  const deposit = parseInt(document.getElementById(`in-deposit-${corpId}`).value.replace(/[^0-9]/g, '') || '0');
+  const checking = parseInt(document.getElementById('in-checking-' + corpId).value.replace(/[^0-9]/g, '') || '0');
+  const cma = parseInt(document.getElementById('in-cma-' + corpId).value.replace(/[^0-9]/g, '') || '0');
+  const deposit = parseInt(document.getElementById('in-deposit-' + corpId).value.replace(/[^0-9]/g, '') || '0');
   const total = checking + cma + deposit;
 
   let prevTotal = null;
-  if (firebaseReady) {
-    try {
-      const prevDate = getPreviousDate(currentDate);
-      const snapshot = await db.ref(`daily_balance/${corpId}/${prevDate}`).once('value');
-      const prev = snapshot.val();
-      if (prev) prevTotal = prev.total;
-    } catch (e) {}
-  } else {
-    const prevDate = getPreviousDate(currentDate);
-    const local = localStorage.getItem(`balance_${prevDate}`);
-    if (local) {
-      const parsed = JSON.parse(local);
-      if (parsed[corpId]) prevTotal = parsed[corpId].total;
-    }
+  const prevDate = getPreviousDate(currentDate);
+  if (allHistoryData[corpId] && allHistoryData[corpId][prevDate]) {
+    prevTotal = allHistoryData[corpId][prevDate].total;
   }
 
   const diff_pct = prevTotal ? ((total - prevTotal) / prevTotal * 100) : null;
 
-  const record = {
+  const existingData = dailyData[corpId] || {};
+  const record = Object.assign({}, existingData, {
     checking, cma, deposit, total,
-    prev_total: prevTotal,
-    diff_pct: diff_pct,
-    entered_by: '대표',
-    timestamp: Date.now()
-  };
+    prev_total: prevTotal, diff_pct: diff_pct,
+    entered_by: '대표', timestamp: Date.now()
+  });
 
   if (firebaseReady) {
     try {
-      await db.ref(`daily_balance/${corpId}/${currentDate}`).set(record);
+      await db.ref('daily_balance/' + corpId + '/' + currentDate).set(record);
+      if (!allHistoryData[corpId]) allHistoryData[corpId] = {};
+      allHistoryData[corpId][currentDate] = record;
       dailyData[corpId] = record;
       refreshUI();
-      loadChart();
-      showToast(`${CORPORATIONS.find(c => c.id === corpId).name} 저장 완료`);
+      renderCashChart();
+      showToast(CORPORATIONS.find(c => c.id === corpId).name + ' 저장 완료');
     } catch (e) {
       showToast('저장 실패: ' + e.message, true);
     }
-  } else {
-    const local = JSON.parse(localStorage.getItem(`balance_${currentDate}`) || '{}');
-    local[corpId] = record;
-    localStorage.setItem(`balance_${currentDate}`, JSON.stringify(local));
-    dailyData[corpId] = record;
-    refreshUI();
-    showToast(`${CORPORATIONS.find(c => c.id === corpId).name} 저장 완료 (로컬)`);
   }
 }
 
 async function copyFromYesterday() {
   if (!confirm('전일 입력값을 모두 가져오시겠습니까?\n(현재 입력란에 채워집니다 — 저장은 별도)')) return;
   const prevDate = getPreviousDate(currentDate);
+  CORPORATIONS.forEach(c => {
+    const prev = allHistoryData[c.id] && allHistoryData[c.id][prevDate];
+    if (prev) {
+      document.getElementById('in-checking-' + c.id).value = (prev.checking || 0).toLocaleString();
+      document.getElementById('in-cma-' + c.id).value = (prev.cma || 0).toLocaleString();
+      document.getElementById('in-deposit-' + c.id).value = (prev.deposit || 0).toLocaleString();
+    }
+  });
+  showToast('전일값 복사 완료 — 확인 후 각 법인 저장');
+}
 
-  if (firebaseReady) {
-    try {
-      const snapshot = await db.ref('daily_balance').once('value');
-      const allData = snapshot.val() || {};
-      CORPORATIONS.forEach(c => {
-        const prev = allData[c.id] && allData[c.id][prevDate];
-        if (prev) {
-          document.getElementById(`in-checking-${c.id}`).value = (prev.checking || 0).toLocaleString();
-          document.getElementById(`in-cma-${c.id}`).value = (prev.cma || 0).toLocaleString();
-          document.getElementById(`in-deposit-${c.id}`).value = (prev.deposit || 0).toLocaleString();
-        }
-      });
-      showToast('전일값 복사 완료 — 확인 후 각 법인 저장');
-    } catch (e) {
-      showToast('복사 실패', true);
+function renderCashChart() {
+  const dates = [];
+  const totals = [];
+  const today = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    let total = 0; let hasData = false;
+    CORPORATIONS.forEach(c => {
+      if (allHistoryData[c.id] && allHistoryData[c.id][dStr]) {
+        total += allHistoryData[c.id][dStr].total || 0;
+        hasData = true;
+      }
+    });
+    dates.push(dStr.slice(5));
+    totals.push(hasData ? total : null);
+  }
+
+  const ctx = document.getElementById('chartCash');
+  if (charts.cash) charts.cash.destroy();
+  charts.cash = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [{
+        label: '8개 법인 합계',
+        data: totals,
+        borderColor: '#8b3a3a',
+        backgroundColor: 'rgba(139, 58, 58, 0.08)',
+        borderWidth: 2, tension: 0.3, fill: true,
+        pointRadius: 3, pointHoverRadius: 5
+      }]
+    },
+    options: chartOptions(v => '₩ ' + v.toLocaleString())
+  });
+}
+
+function chartOptions(formatter) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, position: 'top', labels: { font: { size: 11 } } },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + formatter(ctx.parsed.y || 0) } }
+    },
+    scales: {
+      y: { ticks: { callback: v => (v/1000000).toFixed(0) + 'M' }, grid: { color: '#f0ebe0' } },
+      x: { ticks: { maxTicksLimit: 10 }, grid: { display: false } }
     }
-  } else {
-    const local = localStorage.getItem(`balance_${prevDate}`);
-    if (local) {
-      const parsed = JSON.parse(local);
-      CORPORATIONS.forEach(c => {
-        if (parsed[c.id]) {
-          document.getElementById(`in-checking-${c.id}`).value = (parsed[c.id].checking || 0).toLocaleString();
-          document.getElementById(`in-cma-${c.id}`).value = (parsed[c.id].cma || 0).toLocaleString();
-          document.getElementById(`in-deposit-${c.id}`).value = (parsed[c.id].deposit || 0).toLocaleString();
-        }
-      });
-      showToast('전일값 복사 완료');
+  };
+}
+
+function renderMonitorTab() {
+  const tbody = document.getElementById('monitorBody');
+  let rows = '';
+  let totals = { gajigeup: 0, receivable_trade: 0, receivable_other: 0, payable_other: 0, loan_short: 0, loan_long: 0 };
+
+  CORPORATIONS.forEach(c => {
+    const d = dailyData[c.id];
+    if (!d) {
+      rows += `<tr><td>${c.name}</td><td colspan="8" style="text-align:center;color:var(--ink-muted)">데이터 없음</td></tr>`;
+      return;
     }
+    const gajigeup = d.gajigeup || 0;
+    const gajiDiff = d.gajigeup_diff;
+    const receivable = d.receivable_trade || 0;
+    const receivableOther = d.receivable_other || 0;
+    const payable = d.payable_other || 0;
+    const loanShort = d.loan_short || 0;
+    const loanLong = d.loan_long || 0;
+    const totalLoan = loanShort + loanLong;
+
+    totals.gajigeup += gajigeup;
+    totals.receivable_trade += receivable;
+    totals.receivable_other += receivableOther;
+    totals.payable_other += payable;
+    totals.loan_short += loanShort;
+    totals.loan_long += loanLong;
+
+    let diffCell = '<span style="color:var(--ink-muted)">—</span>';
+    if (gajiDiff !== null && gajiDiff !== undefined) {
+      if (gajiDiff > 1000000) diffCell = '<span class="num-warn">+' + gajiDiff.toLocaleString() + '</span>';
+      else if (gajiDiff > 0) diffCell = '<span class="num-pos">+' + gajiDiff.toLocaleString() + '</span>';
+      else if (gajiDiff < 0) diffCell = '<span class="num-neg">' + gajiDiff.toLocaleString() + '</span>';
+      else diffCell = '<span style="color:var(--ink-muted)">0</span>';
+    }
+
+    rows += `<tr>
+      <td>${c.name}</td>
+      <td class="num">${gajigeup.toLocaleString()}</td>
+      <td class="num">${diffCell}</td>
+      <td class="num">${receivable.toLocaleString()}</td>
+      <td class="num">${receivableOther.toLocaleString()}</td>
+      <td class="num">${payable.toLocaleString()}</td>
+      <td class="num">${loanShort.toLocaleString()}</td>
+      <td class="num">${loanLong.toLocaleString()}</td>
+      <td class="num">${totalLoan.toLocaleString()}</td>
+    </tr>`;
+  });
+
+  rows += `<tr class="total-row">
+    <td>합계</td>
+    <td class="num">${totals.gajigeup.toLocaleString()}</td>
+    <td class="num">—</td>
+    <td class="num">${totals.receivable_trade.toLocaleString()}</td>
+    <td class="num">${totals.receivable_other.toLocaleString()}</td>
+    <td class="num">${totals.payable_other.toLocaleString()}</td>
+    <td class="num">${totals.loan_short.toLocaleString()}</td>
+    <td class="num">${totals.loan_long.toLocaleString()}</td>
+    <td class="num">${(totals.loan_short + totals.loan_long).toLocaleString()}</td>
+  </tr>`;
+
+  tbody.innerHTML = rows;
+
+  renderGajigeupChart();
+  renderLiabilityChart();
+}
+
+function renderGajigeupChart() {
+  const dates = [];
+  const datasets = [];
+  const today = new Date();
+
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    dates.push(d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'));
+  }
+
+  CORPORATIONS.forEach(c => {
+    const data = dates.map(dStr => {
+      const rec = allHistoryData[c.id] && allHistoryData[c.id][dStr];
+      return rec ? (rec.gajigeup || 0) : null;
+    });
+    if (data.some(v => v !== null && v > 0)) {
+      datasets.push({
+        label: c.name,
+        data: data,
+        borderColor: c.color,
+        backgroundColor: c.color + '20',
+        borderWidth: 2, tension: 0.3, pointRadius: 2
+      });
+    }
+  });
+
+  const ctx = document.getElementById('chartGajigeup');
+  if (charts.gajigeup) charts.gajigeup.destroy();
+  charts.gajigeup = new Chart(ctx, {
+    type: 'line',
+    data: { labels: dates.map(d => d.slice(5)), datasets: datasets },
+    options: chartOptions(v => '₩ ' + v.toLocaleString())
+  });
+}
+
+function renderLiabilityChart() {
+  const dates = [];
+  const today = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    dates.push(d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'));
+  }
+
+  const loanData = dates.map(dStr => {
+    let sum = 0; let hasData = false;
+    CORPORATIONS.forEach(c => {
+      const r = allHistoryData[c.id] && allHistoryData[c.id][dStr];
+      if (r) { sum += (r.loan_short || 0) + (r.loan_long || 0); hasData = true; }
+    });
+    return hasData ? sum : null;
+  });
+
+  const receivableData = dates.map(dStr => {
+    let sum = 0; let hasData = false;
+    CORPORATIONS.forEach(c => {
+      const r = allHistoryData[c.id] && allHistoryData[c.id][dStr];
+      if (r) { sum += (r.receivable_trade || 0) + (r.receivable_other || 0); hasData = true; }
+    });
+    return hasData ? sum : null;
+  });
+
+  const payableData = dates.map(dStr => {
+    let sum = 0; let hasData = false;
+    CORPORATIONS.forEach(c => {
+      const r = allHistoryData[c.id] && allHistoryData[c.id][dStr];
+      if (r) { sum += (r.payable_other || 0); hasData = true; }
+    });
+    return hasData ? sum : null;
+  });
+
+  const ctx = document.getElementById('chartLiability');
+  if (charts.liability) charts.liability.destroy();
+  charts.liability = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dates.map(d => d.slice(5)),
+      datasets: [
+        { label: '차입금', data: loanData, borderColor: '#a83232', backgroundColor: '#a8323220', borderWidth: 2, tension: 0.3, pointRadius: 2 },
+        { label: '미수금', data: receivableData, borderColor: '#4a6741', backgroundColor: '#4a674120', borderWidth: 2, tension: 0.3, pointRadius: 2 },
+        { label: '미지급금', data: payableData, borderColor: '#b8862a', backgroundColor: '#b8862a20', borderWidth: 2, tension: 0.3, pointRadius: 2 }
+      ]
+    },
+    options: chartOptions(v => '₩ ' + v.toLocaleString())
+  });
+}
+
+function renderPnlTab() {
+  const tbody = document.getElementById('pnlBody');
+  let rows = '';
+  let totals = { revenue: 0, cogs: 0, sga: 0, op: 0, expectedOp: 0 };
+
+  const monthsElapsed = (new Date()).getMonth() + 1;
+
+  CORPORATIONS.forEach(c => {
+    const d = dailyData[c.id];
+    if (!d) {
+      rows += `<tr><td>${c.name}</td><td colspan="6" style="text-align:center;color:var(--ink-muted)">데이터 없음</td></tr>`;
+      return;
+    }
+    const rev = d.total_revenue || 0;
+    const cogs = d.cogs || 0;
+    const sga = d.sga || 0;
+    const op = rev - cogs - sga;
+    const margin = rev > 0 ? (op / rev * 100) : 0;
+    const expectedOp = monthsElapsed > 0 ? (op / monthsElapsed * 12) : 0;
+
+    totals.revenue += rev;
+    totals.cogs += cogs;
+    totals.sga += sga;
+    totals.op += op;
+    totals.expectedOp += expectedOp;
+
+    const opClass = op >= 0 ? 'num-pos' : 'num-neg';
+    const expClass = expectedOp >= 0 ? 'num-pos' : 'num-neg';
+
+    rows += `<tr>
+      <td>${c.name}</td>
+      <td class="num">${rev.toLocaleString()}</td>
+      <td class="num">${cogs.toLocaleString()}</td>
+      <td class="num">${sga.toLocaleString()}</td>
+      <td class="num ${opClass}">${op.toLocaleString()}</td>
+      <td class="num">${margin.toFixed(1)}%</td>
+      <td class="num ${expClass}">${Math.round(expectedOp).toLocaleString()}</td>
+    </tr>`;
+  });
+
+  const totalMargin = totals.revenue > 0 ? (totals.op / totals.revenue * 100) : 0;
+  rows += `<tr class="total-row">
+    <td>합계</td>
+    <td class="num">${totals.revenue.toLocaleString()}</td>
+    <td class="num">${totals.cogs.toLocaleString()}</td>
+    <td class="num">${totals.sga.toLocaleString()}</td>
+    <td class="num ${totals.op >= 0 ? 'num-pos' : 'num-neg'}">${totals.op.toLocaleString()}</td>
+    <td class="num">${totalMargin.toFixed(1)}%</td>
+    <td class="num ${totals.expectedOp >= 0 ? 'num-pos' : 'num-neg'}">${Math.round(totals.expectedOp).toLocaleString()}</td>
+  </tr>`;
+
+  tbody.innerHTML = rows;
+
+  document.getElementById('pnlSummary').innerHTML = `
+    <div class="summary-stat">
+      <div class="summary-label">YTD 매출 합계</div>
+      <div class="summary-value">₩ <span class="mono">${totals.revenue.toLocaleString()}</span></div>
+      <div class="summary-meta">${monthsElapsed}개월 누계</div>
+    </div>
+    <div class="summary-stat">
+      <div class="summary-label">YTD 영업이익</div>
+      <div class="summary-value mono" style="color:${totals.op >= 0 ? 'var(--green)' : 'var(--red)'}">₩ ${totals.op.toLocaleString()}</div>
+      <div class="summary-meta">영업이익률 ${totalMargin.toFixed(1)}%</div>
+    </div>
+    <div class="summary-stat">
+      <div class="summary-label">연간 예상 영업이익</div>
+      <div class="summary-value mono" style="color:${totals.expectedOp >= 0 ? 'var(--green)' : 'var(--red)'}">₩ ${Math.round(totals.expectedOp).toLocaleString()}</div>
+      <div class="summary-meta">YTD ÷ ${monthsElapsed} × 12</div>
+    </div>
+    <div class="summary-stat">
+      <div class="summary-label">예상 법인세 (22% 기준)</div>
+      <div class="summary-value mono">₩ ${Math.round(totals.expectedOp * 0.22).toLocaleString()}</div>
+      <div class="summary-meta">개략 추정 — 정확치 X</div>
+    </div>
+  `;
+
+  renderPnlChart();
+}
+
+function renderPnlChart() {
+  const dates = [];
+  const today = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    dates.push(d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'));
+  }
+
+  const datasets = CORPORATIONS.map(c => {
+    const data = dates.map(dStr => {
+      const r = allHistoryData[c.id] && allHistoryData[c.id][dStr];
+      if (!r) return null;
+      const op = (r.total_revenue || 0) - (r.cogs || 0) - (r.sga || 0);
+      return op;
+    });
+    return {
+      label: c.name,
+      data: data,
+      borderColor: c.color,
+      backgroundColor: c.color + '20',
+      borderWidth: 2, tension: 0.3, pointRadius: 2
+    };
+  }).filter(ds => ds.data.some(v => v !== null && v !== 0));
+
+  const ctx = document.getElementById('chartPnl');
+  if (charts.pnl) charts.pnl.destroy();
+  charts.pnl = new Chart(ctx, {
+    type: 'line',
+    data: { labels: dates.map(d => d.slice(5)), datasets: datasets },
+    options: chartOptions(v => '₩ ' + v.toLocaleString())
+  });
+}
+
+async function renderAlertsTab() {
+  const list = document.getElementById('allAlertsList');
+  if (!firebaseReady) {
+    list.innerHTML = '<div class="alert-empty">Firebase 미설정</div>';
+    return;
+  }
+  try {
+    const snapshot = await db.ref('alerts').once('value');
+    const alerts = snapshot.val() || {};
+    const items = Object.entries(alerts)
+      .map(([id, a]) => Object.assign({ id }, a))
+      .filter(a => {
+        const days = (Date.now() - (a.timestamp || 0)) / (1000 * 60 * 60 * 24);
+        return days <= 30;
+      })
+      .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    if (items.length === 0) {
+      list.innerHTML = '<div class="alert-empty">최근 30일 알림 없음.</div>';
+      return;
+    }
+
+    list.innerHTML = items.map(a => {
+      const t = new Date(a.timestamp || 0);
+      const dateStr = (t.getMonth()+1) + '/' + t.getDate() + ' ' + t.getHours() + ':' + String(t.getMinutes()).padStart(2,'0');
+      return `<div class="alert-item">
+        <div style="font-weight:500;margin-bottom:2px">${a.corp_name || a.corp_id} — ${a.type}</div>
+        <div style="font-size:11px;color:var(--ink-muted)">${a.date} · ${dateStr} · ₩${(a.amount || 0).toLocaleString()}</div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    list.innerHTML = '<div class="alert-empty">알림 로드 실패</div>';
   }
 }
 
 async function exportData() {
-  let allData = {};
-  if (firebaseReady) {
-    try {
-      const snapshot = await db.ref('daily_balance').once('value');
-      allData = snapshot.val() || {};
-    } catch (e) { showToast('백업 실패', true); return; }
-  } else {
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key.startsWith('balance_')) {
-        allData[key] = JSON.parse(localStorage.getItem(key));
-      }
-    }
+  if (!firebaseReady) {
+    showToast('Firebase 미설정', true);
+    return;
   }
-  const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `잔고백업_${todayStr()}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast('백업 다운로드 완료');
+  try {
+    const blob = new Blob([JSON.stringify(allHistoryData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '잔고백업_' + todayStr() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('백업 다운로드 완료');
+  } catch (e) { showToast('백업 실패', true); }
 }
 
-function showToast(msg, isError = false) {
+function showToast(msg, isError) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.classList.toggle('error', isError);
+  t.classList.toggle('error', !!isError);
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
