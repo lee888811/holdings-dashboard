@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8개 법인 통합 재무 대시보드 — Phase 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600&family=Pretendard:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --bg-card: #ffffff;
+    --bg-section: #faf8f3;
+    --ink: #1a1a1a;
+    --ink-soft: #4a4a4a;
+    --ink-muted: #8a8580;
+    --line: #e8e3da;
+    --line-soft: #f0ebe0;
+    --accent: #8b3a3a;
+    --green: #4a6741;
+    --amber: #b8862a;
+    --red: #a83232;
+    --blue: #2c5577;
+    --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.6;
+    min-height: 100vh;
+  }
+  .serif { font-family: 'Noto Serif KR', serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .header {
+    background: var(--bg-card); border-bottom: 1px solid var(--line);
+    padding: 24px 32px; position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(8px); background: rgba(255,255,255,0.92);
+  }
+  .header-inner {
+    max-width: 1280px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 24px; flex-wrap: wrap;
+  }
+  .header-title { font-family: 'Noto Serif KR', serif; font-size: 20px; font-weight: 600; }
+  .header-subtitle { font-size: 12px; color: var(--ink-muted); margin-top: 4px; }
+  .header-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .date-picker {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-section); border: 1px solid var(--line);
+    border-radius: 6px; padding: 6px 12px;
+  }
+  .date-picker label { font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .date-picker input {
+    border: none; background: transparent;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    padding: 2px 4px; outline: none; cursor: pointer; color-scheme: light;
+  }
+  .btn {
+    border: 1px solid var(--line); background: var(--bg-card); color: var(--ink-soft);
+    padding: 7px 14px; border-radius: 6px; font-family: inherit;
+    font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s;
+  }
+  .btn:hover { border-color: var(--ink-soft); color: var(--ink); }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-primary:hover { background: #6f2e2e; color: #fff; border-color: #6f2e2e; }
+
+  .main { max-width: 1280px; margin: 0 auto; padding: 28px 32px 80px; }
+
+  .summary {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px; background: var(--line); border: 1px solid var(--line);
+    border-radius: 8px; overflow: hidden; margin-bottom: 28px; box-shadow: var(--shadow);
+  }
+  .summary-stat { background: var(--bg-card); padding: 18px 22px; }
+  .summary-label {
+    font-size: 11px; color: var(--ink-muted);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;
+  }
+  .summary-value {
+    font-family: 'Noto Serif KR', serif; font-size: 24px; font-weight: 600; letter-spacing: -0.02em;
+  }
+  .summary-value .unit { font-size: 13px; color: var(--ink-muted); margin-left: 4px; font-weight: 400; }
+  .summary-meta { font-size: 11px; color: var(--ink-muted); margin-top: 4px; }
+
+  .corps-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 16px; margin-bottom: 28px;
+  }
+  .corp-card {
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 18px 20px; box-shadow: var(--shadow);
+    transition: all 0.15s;
+  }
+  .corp-card.alert {
+    border-color: rgba(168, 50, 50, 0.3);
+    background: linear-gradient(135deg, #fff 0%, #fdf6f5 100%);
+  }
+  .corp-card-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line-soft);
+  }
+  .corp-name { font-family: 'Noto Serif KR', serif; font-size: 16px; font-weight: 600; }
+  .corp-badge { font-size: 10px; padding: 3px 7px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em; }
+  .badge-ok { background: rgba(74, 103, 65, 0.1); color: var(--green); }
+  .badge-warning { background: rgba(184, 134, 42, 0.1); color: var(--amber); }
+  .badge-alert { background: rgba(168, 50, 50, 0.1); color: var(--red); }
+  .badge-empty { background: var(--bg-section); color: var(--ink-muted); }
+
+  .corp-total {
+    font-family: 'Noto Serif KR', serif; font-size: 26px; font-weight: 600;
+    margin-bottom: 4px; letter-spacing: -0.01em;
+  }
+  .corp-diff { font-size: 12px; font-family: 'JetBrains Mono', monospace; margin-bottom: 14px; }
+  .corp-diff.up { color: var(--green); }
+  .corp-diff.down { color: var(--red); }
+  .corp-diff.flat { color: var(--ink-muted); }
+
+  .corp-breakdown {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px;
+  }
+  .breakdown-item { background: var(--bg-section); padding: 8px 10px; border-radius: 4px; }
+  .breakdown-label { font-size: 10px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+  .breakdown-value { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+
+  .input-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px;
+  }
+  .input-row input {
+    width: 100%; padding: 7px 10px; border: 1px solid var(--line);
+    border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    background: var(--bg-section); outline: none;
+  }
+  .input-row input:focus { border-color: var(--accent); background: #fff; }
+  .input-row input::placeholder { color: var(--ink-muted); }
+
+  .save-btn {
+    width: 100%; padding: 8px; background: var(--ink); color: #fff;
+    border: none; border-radius: 4px; font-family: inherit;
+    font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s;
+  }
+  .save-btn:hover { background: #000; }
+  .save-btn:disabled { background: var(--line); color: var(--ink-muted); cursor: not-allowed; }
+
+  .last-updated { font-size: 10px; color: var(--ink-muted); margin-top: 8px; text-align: right; }
+
+  .alerts-panel {
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 18px 22px; margin-bottom: 28px; box-shadow: var(--shadow);
+  }
+  .alerts-title {
+    font-family: 'Noto Serif KR', serif; font-size: 14px; font-weight: 600;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .alerts-list { display: flex; flex-direction: column; gap: 8px; }
+  .alert-item {
+    padding: 10px 12px; background: rgba(168, 50, 50, 0.04);
+    border-left: 3px solid var(--red); border-radius: 4px; font-size: 12.5px;
+  }
+  .alert-empty { color: var(--ink-muted); font-size: 12.5px; padding: 8px; }
+
+  .chart-section {
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 22px 24px; margin-bottom: 28px; box-shadow: var(--shadow);
+  }
+  .chart-title { font-family: 'Noto Serif KR', serif; font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+  #chart { width: 100%; height: 280px; }
+
+  .toast {
+    position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--ink); color: #fff;
+    padding: 12px 20px; border-radius: 6px; font-size: 13px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transition: transform 0.3s; z-index: 300;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--red); }
+
+  .login-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center; z-index: 1000;
+  }
+  .login-box {
+    background: #fff; padding: 32px; border-radius: 12px;
+    width: 380px; max-width: 90vw; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  .login-title { font-family: 'Noto Serif KR', serif; font-size: 20px; margin-bottom: 8px; }
+  .login-subtitle { color: var(--ink-muted); font-size: 13px; margin-bottom: 20px; }
+  .login-box input {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--line);
+    border-radius: 6px; font-family: inherit; font-size: 14px; margin-bottom: 12px;
+  }
+  .login-box button {
+    width: 100%; padding: 10px; background: var(--accent); color: #fff;
+    border: none; border-radius: 6px; font-family: inherit; font-size: 14px;
+    font-weight: 500; cursor: pointer;
+  }
+  .login-error { color: var(--red); font-size: 12px; margin-bottom: 12px; min-height: 16px; }
+
+  @media (max-width: 768px) {
+    .header { padding: 18px 20px; }
+    .main { padding: 20px; }
+    .corp-card { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-title">8개 법인 재무 대시보드</div>
+    <div class="login-subtitle">접근 비밀번호를 입력하세요</div>
+    <input type="password" id="passwordInput" placeholder="비밀번호" autofocus>
+    <div class="login-error" id="loginError"></div>
+    <button onclick="checkPassword()">접속</button>
+  </div>
+</div>
+
+<header class="header" style="display:none" id="mainHeader">
+  <div class="header-inner">
+    <div>
+      <div class="header-title">8개 법인 통합 재무 대시보드</div>
+      <div class="header-subtitle">Phase 1 — 일별 잔고 모니터링</div>
+    </div>
+    <div class="header-controls">
+      <div class="date-picker">
+        <label>조회일</label>
+        <input type="date" id="dateInput">
+      </div>
+      <button class="btn" onclick="exportData()">백업</button>
+      <button class="btn btn-primary" onclick="copyFromYesterday()">전일값 복사</button>
+    </div>
+  </div>
+</header>
+
+<main class="main" style="display:none" id="mainContent">
+
+  <div class="summary" id="summary"></div>
+
+  <div class="alerts-panel">
+    <div class="alerts-title">
+      <span style="display:inline-block;width:8px;height:8px;background:var(--red);border-radius:50%"></span>
+      이상 신호 알림
+    </div>
+    <div class="alerts-list" id="alertsList"></div>
+  </div>
+
+  <div class="corps-grid" id="corpsGrid"></div>
+
+  <div class="chart-section">
+    <div class="chart-title">최근 30일 합계 잔고 추이</div>
+    <canvas id="chart"></canvas>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+const CORPORATIONS = [
+  { id: 'ttl_holdings', name: '티티엘홀딩스' },
+  { id: 'nonhyeon_med', name: '논현메드' },
+  { id: 'cheongdam_med', name: '청담메디칼' },
+  { id: 'idad', name: '아이디애드' },
+  { id: 'gmnet', name: '지엠넷' },
+  { id: 'realconnector', name: '리얼커넥터' },
+  { id: 'a2g', name: '에이투지' },
+  { id: 'botegian', name: '보테지앙' }
+];
+
+const ALERT_THRESHOLD_PCT = 30;
+const ALERT_LOW_BALANCE = 1000000;
+const ACCESS_PASSWORD = "aazz9876";
+
+// Firebase 설정 — 본인 프로젝트로 교체
+const firebaseConfig = {
+  apiKey: "AIzaSyCTcA__p6RZSSysnAAaJgHIaFiaeRJdJs8",
+  authDomain: "holdings-finance.firebaseapp.com",
+  databaseURL: "https://holdings-finance-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "holdings-finance",
+  storageBucket: "holdings-finance.firebasestorage.app",
+  messagingSenderId: "36338853071",
+  appId: "1:36338853071:web:7cbbc2e8eed382b7d483ba"
+};
+
+let firebaseReady = false;
+let db;
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
+  firebaseReady = firebaseConfig.apiKey !== "YOUR_API_KEY_HERE";
+} catch (e) {
+  console.warn('Firebase 미설정 — 로컬 모드');
+}
+
+let currentDate = '';
+let dailyData = {};
+let chart = null;
+
+function checkPassword() {
+  const input = document.getElementById('passwordInput').value;
+  if (input === ACCESS_PASSWORD) {
+    sessionStorage.setItem('authed', '1');
+    showApp();
+  } else {
+    document.getElementById('loginError').textContent = '비밀번호가 올바르지 않습니다';
+  }
+}
+document.getElementById('passwordInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkPassword();
+});
+if (sessionStorage.getItem('authed') === '1') setTimeout(showApp, 0);
+
+function showApp() {
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('mainHeader').style.display = '';
+  document.getElementById('mainContent').style.display = '';
+  init();
+}
+
+function init() {
+  currentDate = todayStr();
+  document.getElementById('dateInput').value = currentDate;
+  document.getElementById('dateInput').addEventListener('change', e => {
+    currentDate = e.target.value;
+    loadData();
+  });
+  renderCorpCards();
+  loadData();
+}
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getPreviousDate(dateStr) {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+async function loadData() {
+  if (!firebaseReady) {
+    const local = localStorage.getItem(`balance_${currentDate}`);
+    dailyData = local ? JSON.parse(local) : {};
+    refreshUI();
+    return;
+  }
+  try {
+    const snapshot = await db.ref(`daily_balance`).once('value');
+    const allData = snapshot.val() || {};
+    dailyData = {};
+    CORPORATIONS.forEach(c => {
+      dailyData[c.id] = (allData[c.id] && allData[c.id][currentDate]) || null;
+    });
+    refreshUI();
+    loadChart();
+  } catch (e) {
+    showToast('Firebase 연결 실패', true);
+  }
+}
+
+async function loadChart() {
+  if (!firebaseReady) return;
+  try {
+    const snapshot = await db.ref(`daily_balance`).once('value');
+    const allData = snapshot.val() || {};
+    const dates = []; const totals = [];
+    const today = new Date();
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      let total = 0; let hasData = false;
+      CORPORATIONS.forEach(c => {
+        if (allData[c.id] && allData[c.id][dStr]) {
+          total += allData[c.id][dStr].total || 0;
+          hasData = true;
+        }
+      });
+      dates.push(dStr.slice(5));
+      totals.push(hasData ? total : null);
+    }
+    renderChart(dates, totals);
+  } catch (e) {}
+}
+
+function renderChart(labels, data) {
+  const ctx = document.getElementById('chart');
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '8개 법인 합계',
+        data: data,
+        borderColor: '#8b3a3a',
+        backgroundColor: 'rgba(139, 58, 58, 0.08)',
+        borderWidth: 2, tension: 0.3, fill: true,
+        pointRadius: 3, pointHoverRadius: 5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => '₩ ' + (ctx.parsed.y || 0).toLocaleString() } }
+      },
+      scales: {
+        y: { ticks: { callback: v => (v/1000000).toFixed(0) + 'M' }, grid: { color: '#f0ebe0' } },
+        x: { ticks: { maxTicksLimit: 10 }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderCorpCards() {
+  const grid = document.getElementById('corpsGrid');
+  grid.innerHTML = CORPORATIONS.map(c => `
+    <div class="corp-card" id="card-${c.id}">
+      <div class="corp-card-header">
+        <div class="corp-name">${c.name}</div>
+        <div class="corp-badge badge-empty" id="badge-${c.id}">미입력</div>
+      </div>
+      <div class="corp-total mono" id="total-${c.id}">—</div>
+      <div class="corp-diff flat mono" id="diff-${c.id}">전일 대비 정보 없음</div>
+      <div class="corp-breakdown">
+        <div class="breakdown-item">
+          <div class="breakdown-label">보통예금</div>
+          <div class="breakdown-value mono" id="show-checking-${c.id}">—</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="breakdown-label">CMA</div>
+          <div class="breakdown-value mono" id="show-cma-${c.id}">—</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="breakdown-label">정기예금</div>
+          <div class="breakdown-value mono" id="show-deposit-${c.id}">—</div>
+        </div>
+      </div>
+      <div class="input-row">
+        <input type="text" id="in-checking-${c.id}" placeholder="보통예금" inputmode="numeric">
+        <input type="text" id="in-cma-${c.id}" placeholder="CMA" inputmode="numeric">
+        <input type="text" id="in-deposit-${c.id}" placeholder="정기예금" inputmode="numeric">
+      </div>
+      <button class="save-btn" onclick="saveBalance('${c.id}')">저장</button>
+      <div class="last-updated" id="updated-${c.id}"></div>
+    </div>
+  `).join('');
+
+  CORPORATIONS.forEach(c => {
+    ['checking', 'cma', 'deposit'].forEach(field => {
+      const input = document.getElementById(`in-${field}-${c.id}`);
+      input.addEventListener('input', e => {
+        const num = e.target.value.replace(/[^0-9]/g, '');
+        e.target.value = num ? Number(num).toLocaleString() : '';
+      });
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') saveBalance(c.id);
+      });
+    });
+  });
+}
+
+function refreshUI() {
+  let totalSum = 0;
+  let alerts = [];
+  let enteredCount = 0;
+  let alertCount = 0;
+
+  CORPORATIONS.forEach(c => {
+    const data = dailyData[c.id];
+    const card = document.getElementById(`card-${c.id}`);
+    const badge = document.getElementById(`badge-${c.id}`);
+    const totalEl = document.getElementById(`total-${c.id}`);
+    const diffEl = document.getElementById(`diff-${c.id}`);
+
+    if (!data) {
+      badge.className = 'corp-badge badge-empty';
+      badge.textContent = '미입력';
+      totalEl.textContent = '—';
+      diffEl.className = 'corp-diff flat mono';
+      diffEl.textContent = '전일 대비 정보 없음';
+      ['checking', 'cma', 'deposit'].forEach(f => {
+        document.getElementById(`show-${f}-${c.id}`).textContent = '—';
+        document.getElementById(`in-${f}-${c.id}`).value = '';
+      });
+      document.getElementById(`updated-${c.id}`).textContent = '';
+      card.classList.remove('alert');
+      return;
+    }
+
+    enteredCount++;
+    totalSum += data.total || 0;
+
+    totalEl.textContent = '₩ ' + (data.total || 0).toLocaleString();
+    document.getElementById(`show-checking-${c.id}`).textContent = (data.checking || 0).toLocaleString();
+    document.getElementById(`show-cma-${c.id}`).textContent = (data.cma || 0).toLocaleString();
+    document.getElementById(`show-deposit-${c.id}`).textContent = (data.deposit || 0).toLocaleString();
+    document.getElementById(`in-checking-${c.id}`).value = (data.checking || 0).toLocaleString();
+    document.getElementById(`in-cma-${c.id}`).value = (data.cma || 0).toLocaleString();
+    document.getElementById(`in-deposit-${c.id}`).value = (data.deposit || 0).toLocaleString();
+
+    const diffPct = data.diff_pct;
+    if (diffPct === undefined || diffPct === null) {
+      diffEl.className = 'corp-diff flat mono';
+      diffEl.textContent = '전일 대비 정보 없음';
+    } else if (diffPct > 0.1) {
+      diffEl.className = 'corp-diff up mono';
+      diffEl.textContent = `▲ +${diffPct.toFixed(1)}% (전일 대비)`;
+    } else if (diffPct < -0.1) {
+      diffEl.className = 'corp-diff down mono';
+      diffEl.textContent = `▼ ${diffPct.toFixed(1)}% (전일 대비)`;
+    } else {
+      diffEl.className = 'corp-diff flat mono';
+      diffEl.textContent = '— 변동 없음';
+    }
+
+    let isAlert = false;
+    if (Math.abs(diffPct || 0) >= ALERT_THRESHOLD_PCT) {
+      alerts.push(`${c.name}: 잔고 ${diffPct > 0 ? '급증' : '급감'} ${diffPct.toFixed(1)}%`);
+      isAlert = true;
+    }
+    if (data.total < ALERT_LOW_BALANCE) {
+      alerts.push(`${c.name}: 잔고 부족 — ₩${data.total.toLocaleString()}`);
+      isAlert = true;
+    }
+
+    if (isAlert) {
+      badge.className = 'corp-badge badge-alert';
+      badge.textContent = '경고';
+      card.classList.add('alert');
+      alertCount++;
+    } else {
+      badge.className = 'corp-badge badge-ok';
+      badge.textContent = '정상';
+      card.classList.remove('alert');
+    }
+
+    if (data.timestamp) {
+      const t = new Date(data.timestamp);
+      document.getElementById(`updated-${c.id}`).textContent =
+        `최근 입력: ${t.getMonth()+1}/${t.getDate()} ${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}`;
+    }
+  });
+
+  document.getElementById('summary').innerHTML = `
+    <div class="summary-stat">
+      <div class="summary-label">합계 잔고</div>
+      <div class="summary-value">₩ <span class="mono">${totalSum.toLocaleString()}</span></div>
+      <div class="summary-meta">${enteredCount} / ${CORPORATIONS.length}개 법인 입력됨</div>
+    </div>
+    <div class="summary-stat">
+      <div class="summary-label">조회일</div>
+      <div class="summary-value mono">${currentDate.slice(5)}</div>
+      <div class="summary-meta">${currentDate}</div>
+    </div>
+    <div class="summary-stat">
+      <div class="summary-label">이상 신호</div>
+      <div class="summary-value mono" style="color:${alertCount > 0 ? 'var(--red)' : 'var(--green)'}">${alertCount}<span class="unit">건</span></div>
+      <div class="summary-meta">${alertCount > 0 ? '확인 필요' : '모두 정상'}</div>
+    </div>
+    <div class="summary-stat">
+      <div class="summary-label">입력 완료율</div>
+      <div class="summary-value mono">${Math.round(enteredCount/CORPORATIONS.length*100)}<span class="unit">%</span></div>
+      <div class="summary-meta">${enteredCount === CORPORATIONS.length ? '오늘 데이터 완성' : `${CORPORATIONS.length - enteredCount}개 법인 남음`}</div>
+    </div>
+  `;
+
+  const alertsList = document.getElementById('alertsList');
+  if (alerts.length === 0) {
+    alertsList.innerHTML = '<div class="alert-empty">현재 이상 신호 없음. 모든 법인 정상 범위.</div>';
+  } else {
+    alertsList.innerHTML = alerts.map(a => `<div class="alert-item">${a}</div>`).join('');
+  }
+}
+
+async function saveBalance(corpId) {
+  const checking = parseInt(document.getElementById(`in-checking-${corpId}`).value.replace(/[^0-9]/g, '') || '0');
+  const cma = parseInt(document.getElementById(`in-cma-${corpId}`).value.replace(/[^0-9]/g, '') || '0');
+  const deposit = parseInt(document.getElementById(`in-deposit-${corpId}`).value.replace(/[^0-9]/g, '') || '0');
+  const total = checking + cma + deposit;
+
+  let prevTotal = null;
+  if (firebaseReady) {
+    try {
+      const prevDate = getPreviousDate(currentDate);
+      const snapshot = await db.ref(`daily_balance/${corpId}/${prevDate}`).once('value');
+      const prev = snapshot.val();
+      if (prev) prevTotal = prev.total;
+    } catch (e) {}
+  } else {
+    const prevDate = getPreviousDate(currentDate);
+    const local = localStorage.getItem(`balance_${prevDate}`);
+    if (local) {
+      const parsed = JSON.parse(local);
+      if (parsed[corpId]) prevTotal = parsed[corpId].total;
+    }
+  }
+
+  const diff_pct = prevTotal ? ((total - prevTotal) / prevTotal * 100) : null;
+
+  const record = {
+    checking, cma, deposit, total,
+    prev_total: prevTotal,
+    diff_pct: diff_pct,
+    entered_by: '대표',
+    timestamp: Date.now()
+  };
+
+  if (firebaseReady) {
+    try {
+      await db.ref(`daily_balance/${corpId}/${currentDate}`).set(record);
+      dailyData[corpId] = record;
+      refreshUI();
+      loadChart();
+      showToast(`${CORPORATIONS.find(c => c.id === corpId).name} 저장 완료`);
+    } catch (e) {
+      showToast('저장 실패: ' + e.message, true);
+    }
+  } else {
+    const local = JSON.parse(localStorage.getItem(`balance_${currentDate}`) || '{}');
+    local[corpId] = record;
+    localStorage.setItem(`balance_${currentDate}`, JSON.stringify(local));
+    dailyData[corpId] = record;
+    refreshUI();
+    showToast(`${CORPORATIONS.find(c => c.id === corpId).name} 저장 완료 (로컬)`);
+  }
+}
+
+async function copyFromYesterday() {
+  if (!confirm('전일 입력값을 모두 가져오시겠습니까?\n(현재 입력란에 채워집니다 — 저장은 별도)')) return;
+  const prevDate = getPreviousDate(currentDate);
+
+  if (firebaseReady) {
+    try {
+      const snapshot = await db.ref('daily_balance').once('value');
+      const allData = snapshot.val() || {};
+      CORPORATIONS.forEach(c => {
+        const prev = allData[c.id] && allData[c.id][prevDate];
+        if (prev) {
+          document.getElementById(`in-checking-${c.id}`).value = (prev.checking || 0).toLocaleString();
+          document.getElementById(`in-cma-${c.id}`).value = (prev.cma || 0).toLocaleString();
+          document.getElementById(`in-deposit-${c.id}`).value = (prev.deposit || 0).toLocaleString();
+        }
+      });
+      showToast('전일값 복사 완료 — 확인 후 각 법인 저장');
+    } catch (e) {
+      showToast('복사 실패', true);
+    }
+  } else {
+    const local = localStorage.getItem(`balance_${prevDate}`);
+    if (local) {
+      const parsed = JSON.parse(local);
+      CORPORATIONS.forEach(c => {
+        if (parsed[c.id]) {
+          document.getElementById(`in-checking-${c.id}`).value = (parsed[c.id].checking || 0).toLocaleString();
+          document.getElementById(`in-cma-${c.id}`).value = (parsed[c.id].cma || 0).toLocaleString();
+          document.getElementById(`in-deposit-${c.id}`).value = (parsed[c.id].deposit || 0).toLocaleString();
+        }
+      });
+      showToast('전일값 복사 완료');
+    }
+  }
+}
+
+async function exportData() {
+  let allData = {};
+  if (firebaseReady) {
+    try {
+      const snapshot = await db.ref('daily_balance').once('value');
+      allData = snapshot.val() || {};
+    } catch (e) { showToast('백업 실패', true); return; }
+  } else {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key.startsWith('balance_')) {
+        allData[key] = JSON.parse(localStorage.getItem(key));
+      }
+    }
+  }
+  const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `잔고백업_${todayStr()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('백업 다운로드 완료');
+}
+
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', isError);
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
